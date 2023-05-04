@@ -1,0 +1,13 @@
+.calculator-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.output-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}

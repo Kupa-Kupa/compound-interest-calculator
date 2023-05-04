@@ -16,10 +16,11 @@
     ln = natural logarithm, used in formulas below
 */
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import CalcInputs from './CalcInputs';
+import './Calculator.css';
 
-const Calculator = () => {
+const Calculator = (props) => {
   const [inputs, setInputs] = useState({
     principal: 0,
     interest: 0,
@@ -69,11 +70,59 @@ const Calculator = () => {
     }
   };
 
+  useEffect(() => {
+    const calculateChartData = () => {
+      const data = [];
+      let curTotal;
+      let prevTotal = inputs.principal;
+
+      for (let i = 1; i <= inputs.time; i++) {
+        const obj = {
+          name: `Year ${i}`,
+          principal: inputs.principal,
+        };
+
+        if (inputs.compoundingPeriods === '0') {
+          curTotal = prevTotal * Math.E ** (inputs.interest * 1);
+
+          prevTotal = curTotal;
+        } else {
+          curTotal =
+            prevTotal *
+            (1 + inputs.interest / inputs.compoundingPeriods) **
+              (inputs.compoundingPeriods * 1);
+
+          prevTotal = curTotal;
+        }
+
+        obj.interest = (curTotal - inputs.principal).toFixed(2);
+        obj.total = curTotal.toFixed(2);
+
+        console.log('chart obj', obj);
+
+        data.push(obj);
+      }
+
+      props.setData(data);
+    };
+
+    const calculateButton = document.querySelector('button');
+
+    calculateButton.addEventListener('click', calculateChartData);
+
+    return () => {
+      calculateButton.removeEventListener('click', calculateChartData);
+    };
+    // }, [accruedAmount]);
+  });
+
   return (
-    <div>
+    <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
-      <div>{accruedAmount}</div>
-      <button onClick={calculate}>Calculate</button>
+      <div className="output-container">
+        <div>{accruedAmount}</div>
+        <button onClick={calculate}>Calculate</button>
+      </div>
     </div>
   );
 };

@@ -1,0 +1,21 @@
+/* .chart-container {
+  display: flex;
+  justify-content: center;
+} */
+
+.responsive-container-parent {
+  height: 500px;
+  width: 1000px;
+  padding-bottom: 3rem;
+}
+
+.custom-tooltip {
+  border: solid black 2px;
+  border-radius: 10px;
+  padding: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.recharts-legend-item-text {
+  color: black !important;
+}
