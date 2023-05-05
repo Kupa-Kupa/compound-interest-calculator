@@ -26,6 +26,9 @@ const Calculator = (props) => {
     interest: 0,
     compoundingPeriods: 1,
     time: 0,
+    regularDeposit: 0,
+    depositFrequency: 12,
+    annuityDue: 0,
   });
 
   const [accruedAmount, setAccruedAmount] = useState(0);
@@ -50,26 +53,117 @@ const Calculator = (props) => {
 
   const calculate = () => {
     console.log('compoundingPeriods', inputs.compoundingPeriods);
-    if (inputs.compoundingPeriods === '0') {
-      setAccruedAmount((prevState) => {
-        const amount =
-          inputs.principal * Math.E ** (inputs.interest * inputs.time);
 
-        console.log('amount', amount);
-        return amount.toFixed(2);
-      });
+    console.log('regularDeposit', inputs.regularDeposit);
+
+    if (inputs.regularDeposit !== '0') {
+      console.log('deposits made');
+      calculateDepositCompounding();
+    } else if (inputs.compoundingPeriods === '0') {
+      calculateContinuouslyCompounding();
     } else {
-      setAccruedAmount((prevState) => {
-        const amount =
-          inputs.principal *
-          (1 + inputs.interest / inputs.compoundingPeriods) **
-            (inputs.compoundingPeriods * inputs.time);
-
-        return amount.toFixed(2);
-      });
+      calculatePeriodicallyCompounding();
     }
   };
 
+  const calculatePeriodicallyCompounding = () => {
+    // setAccruedAmount((prevState) => {
+    //   const FV =
+    //     inputs.principal *
+    //     (1 + inputs.interest / inputs.compoundingPeriods) **
+    //       (inputs.compoundingPeriods * inputs.time);
+    //   return FV;
+    // });
+
+    const FV =
+      inputs.principal *
+      (1 + inputs.interest / inputs.compoundingPeriods) **
+        (inputs.compoundingPeriods * inputs.time);
+
+    setAccruedAmount((prevState) => {
+      return FV;
+    });
+
+    console.log('periodically compounding', FV);
+
+    return FV;
+  };
+
+  const calculateContinuouslyCompounding = () => {
+    // setAccruedAmount((prevState) => {
+    //   const FV = inputs.principal * Math.E ** (inputs.interest * inputs.time);
+    //   console.log('amount', FV);
+    //   return FV;
+    // });
+
+    const FV = inputs.principal * Math.E ** (inputs.interest * inputs.time);
+    console.log('amount', FV);
+
+    setAccruedAmount((prevState) => {
+      return FV;
+    });
+
+    return FV;
+  };
+
+  const calculateDepositCompounding = () => {
+    // setAccruedAmount((prevState) => {
+    //   const FV = calculatePeriodicallyCompounding() + calculateAnnuity();
+    //   console.log('amount', FV);
+    //   return FV;
+    // });
+
+    const FV = calculatePeriodicallyCompounding() + calculateAnnuity();
+
+    console.log('annuity', calculateAnnuity());
+
+    console.log('Total', FV);
+
+    setAccruedAmount((prevState) => {
+      return FV;
+    });
+
+    return FV;
+  };
+
+  // https://www.investopedia.com/terms/f/future-value-annuity.asp
+  // better formula explanation
+  // https://www.calculatorsoup.com/calculators/financial/future-value-annuity-calculator.php
+  const calculateAnnuity = () => {
+    console.log('inputs.regularDeposit', inputs.regularDeposit);
+    console.log('inputs.interest', inputs.interest);
+    console.log('inputs.depositFrequency', inputs.depositFrequency);
+    console.log('inputs.time', inputs.time);
+
+    const FV =
+      inputs.regularDeposit *
+      (((1 + inputs.interest / inputs.compoundingPeriods) **
+        (inputs.compoundingPeriods * inputs.time) -
+        1) /
+        (inputs.interest / inputs.compoundingPeriods)) *
+      (1 + (inputs.interest / inputs.compoundingPeriods) * inputs.annuityDue);
+
+    return FV;
+  };
+
+  // this is not really neccessary can do it in a single annuity forumula
+  // by adding * (1 + rT)
+  // https://www.calculatorsoup.com/calculators/financial/future-value-annuity-calculator.php
+  /*
+  const calculateAnnuityDue = () => {
+    const FV =
+      inputs.regularDeposit *
+      (((1 + inputs.interest / inputs.compoundingPeriods) **
+        (inputs.compoundingPeriods * inputs.time) -
+        1) /
+        (inputs.interest / inputs.compoundingPeriods)) *
+      (inputs.interest / inputs.compoundingPeriods);
+
+    return FV;
+  };
+  */
+
+  // set chart data
   useEffect(() => {
     const calculateChartData = () => {
       const data = [];
@@ -120,7 +214,7 @@ const Calculator = (props) => {
     <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
       <div className="output-container">
-        <div>{accruedAmount}</div>
+        <div>{accruedAmount.toFixed(2)}</div>
         <button onClick={calculate}>Calculate</button>
       </div>
     </div>

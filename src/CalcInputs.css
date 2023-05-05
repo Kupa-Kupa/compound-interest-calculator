@@ -1,4 +1,19 @@
 form {
+  /* display: flex;
+  flex-wrap: wrap;
+  gap: 1rem; */
+
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+
+  max-width: 800px;
+}
+
+form > div {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
+
+  min-width: 185px;
 }
