@@ -64,6 +64,8 @@ const Calculator = (props) => {
     } else {
       calculatePeriodicallyCompounding();
     }
+
+    // calculateDepositCompounding();
   };
 
   const calculatePeriodicallyCompounding = () => {
@@ -135,15 +137,71 @@ const Calculator = (props) => {
     console.log('inputs.depositFrequency', inputs.depositFrequency);
     console.log('inputs.time', inputs.time);
 
-    const FV =
-      inputs.regularDeposit *
-      (((1 + inputs.interest / inputs.compoundingPeriods) **
-        (inputs.compoundingPeriods * inputs.time) -
-        1) /
-        (inputs.interest / inputs.compoundingPeriods)) *
-      (1 + (inputs.interest / inputs.compoundingPeriods) * inputs.annuityDue);
+    if (inputs.depositFrequency === inputs.compoundingPeriods) {
+      const FV =
+        inputs.regularDeposit *
+        (((1 + inputs.interest / inputs.compoundingPeriods) **
+          (inputs.compoundingPeriods * inputs.time) -
+          1) /
+          (inputs.interest / inputs.compoundingPeriods)) *
+        (1 + (inputs.interest / inputs.compoundingPeriods) * inputs.annuityDue);
 
-    return FV;
+      return FV;
+    } else if (inputs.compoundingPeriods === '0') {
+      // https://www.calculatorsoup.com/calculators/financial/future-value-calculator.php
+      // effective rate becomes e^r -1
+      console.log(`continueous`);
+
+      // interest rate must be in terms of deposit frequency
+
+      const FV =
+        (inputs.regularDeposit /
+          (Math.E ** (inputs.interest / inputs.depositFrequency) - 1)) *
+        (Math.E **
+          ((inputs.interest / inputs.depositFrequency) *
+            (inputs.time * inputs.depositFrequency)) -
+          1) *
+        (1 +
+          (Math.E ** (inputs.interest / inputs.depositFrequency) - 1) *
+            inputs.annuityDue);
+
+      // const FV =
+      //   (inputs.regularDeposit / (Math.E ** effectiveRate - 1)) *
+      //   (Math.E ** (effectiveRate * inputs.time) - 1) *
+      //   (1 + (Math.E ** effectiveRate - 1) * inputs.annuityDue);
+
+      return FV;
+    } else {
+      const equivalentInterestRate =
+        inputs.depositFrequency *
+        ((1 + inputs.interest / inputs.compoundingPeriods) **
+          (inputs.compoundingPeriods / inputs.depositFrequency) -
+          1);
+
+      console.log('equivalentInterestRate', equivalentInterestRate);
+
+      // const FV =
+      //   inputs.regularDeposit *
+      //   (((1 + equivalentInterestRate / inputs.compoundingPeriods) **
+      //     (inputs.compoundingPeriods * inputs.time) -
+      //     1) /
+      //     (equivalentInterestRate / inputs.compoundingPeriods)) *
+      //   (1 +
+      //     (equivalentInterestRate / inputs.compoundingPeriods) *
+      //       inputs.annuityDue);
+
+      const FV =
+        inputs.regularDeposit *
+        (((1 + equivalentInterestRate / inputs.depositFrequency) **
+          (inputs.depositFrequency * inputs.time) -
+          1) /
+          (equivalentInterestRate / inputs.depositFrequency)) *
+        (1 +
+          (equivalentInterestRate / inputs.depositFrequency) *
+            inputs.annuityDue);
+
+      return FV;
+    }
   };
 
   // this is not really neccessary can do it in a single annuity forumula
@@ -214,7 +272,7 @@ const Calculator = (props) => {
     <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
       <div className="output-container">
-        <div>{accruedAmount.toFixed(2)}</div>
+        <div>{accruedAmount.toLocaleString()}</div>
         <button onClick={calculate}>Calculate</button>
       </div>
     </div>
