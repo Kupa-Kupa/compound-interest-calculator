@@ -36,6 +36,28 @@ const Calculator = (props) => {
   const handleInputs = (e) => {
     let { name, value } = e.target;
 
+    // validate inputs
+    if (
+      name === 'principal' ||
+      name === 'regularDeposit' ||
+      name === 'interest'
+    ) {
+      if (isNaN(value) || value < 0) {
+        e.target.value = 0;
+        value = 0;
+      }
+    }
+
+    // need to validate time to be an int (no partial years)
+    // this places a leading 0 which can't be backspaced away
+    // which is kind of annoying
+    if (name === 'time') {
+      if (isNaN(value) || value < 1 || value % 1 !== 0) {
+        e.target.value = parseInt(value) || 0;
+        value = parseInt(value) || 0;
+      }
+    }
+
     if (name === 'interest') {
       value = value / 100;
     }
@@ -380,12 +402,46 @@ const Calculator = (props) => {
       props.setData(data);
     };
 
-    const calculateButton = document.querySelector('button');
+    // const validateInput = (e) => {
+    //   let { name, value } = e.target;
 
+    //   if (
+    //     name === 'principal' ||
+    //     name === 'regularDeposit' ||
+    //     name === 'time' ||
+    //     name === 'interest'
+    //   ) {
+    //     if (isNaN(value) || value < 0) {
+    //       e.target.value = 0;
+    //     }
+    //   }
+    // };
+
+    const calculateButton = document.querySelector('button');
     calculateButton.addEventListener('click', calculateChartData);
+
+    // const principalInput = document.querySelector('#principal');
+    // principalInput.addEventListener('change', validateInput);
+
+    // const regularDepositInput = document.querySelector('#regularDeposit');
+    // regularDepositInput.addEventListener('change', validateInput);
+
+    // const timeInput = document.querySelector('#time');
+    // timeInput.addEventListener('change', validateInput);
+
+    // const interestInput = document.querySelector('#interest');
+    // interestInput.addEventListener('change', validateInput);
 
     return () => {
       calculateButton.removeEventListener('click', calculateChartData);
+
+      // principalInput.removeEventListener('change', validateInput);
+
+      // regularDepositInput.removeEventListener('change', validateInput);
+
+      // timeInput.removeEventListener('change', validateInput);
+
+      // interestInput.removeEventListener('change', validateInput);
     };
     // }, [accruedAmount]);
   });
