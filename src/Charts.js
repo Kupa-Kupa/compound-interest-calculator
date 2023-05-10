@@ -22,6 +22,7 @@ const Charts = (props) => {
         <div className="custom-tooltip">
           <p className="label">{`${label}`}</p>
           <p className="label">{`Principal: ${payload[0].payload.principal}`}</p>
+          <p className="label">{`Deposits: ${payload[0].payload.deposits}`}</p>
           <p className="label">{`Interest: ${payload[0].payload.interest}`}</p>
           <p className="label">{`Total: ${payload[0].payload.total}`}</p>
         </div>
@@ -59,6 +60,7 @@ const Charts = (props) => {
             <Tooltip content={<CustomTooltip />} />
             <Legend />
             <Bar dataKey="principal" stackId="a" fill="rgb(1,70,245)" />
+            <Bar dataKey="deposits" stackId="a" fill="rgb(30, 161, 161)" />
             <Bar dataKey="interest" stackId="a" fill="rgb(166, 190, 252)" />
           </BarChart>
         </ResponsiveContainer>

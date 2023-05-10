@@ -41,12 +41,12 @@ const Calculator = (props) => {
     }
 
     console.log('name', name);
-    console.log('value', value);
+    console.log('value', Number(value));
 
     setInputs((prevState) => {
       return {
         ...prevState,
-        [name]: value,
+        [name]: Number(value),
       };
     });
   };
@@ -56,10 +56,13 @@ const Calculator = (props) => {
 
     console.log('regularDeposit', inputs.regularDeposit);
 
-    if (inputs.regularDeposit !== '0') {
+    if (inputs.regularDeposit !== 0 && inputs.compoundingPeriods === 0) {
+      console.log('deposits made');
+      calculateDepositContinuouslyCompounding();
+    } else if (inputs.regularDeposit !== 0) {
       console.log('deposits made');
       calculateDepositCompounding();
-    } else if (inputs.compoundingPeriods === '0') {
+    } else if (inputs.compoundingPeriods === 0) {
       calculateContinuouslyCompounding();
     } else {
       calculatePeriodicallyCompounding();
@@ -86,7 +89,7 @@ const Calculator = (props) => {
       return FV;
     });
 
-    console.log('periodically compounding', FV);
+    console.log('periodically compounding FV', FV);
 
     return FV;
   };
@@ -128,6 +131,26 @@ const Calculator = (props) => {
     return FV;
   };
 
+  const calculateDepositContinuouslyCompounding = () => {
+    // setAccruedAmount((prevState) => {
+    //   const FV = calculatePeriodicallyCompounding() + calculateAnnuity();
+    //   console.log('amount', FV);
+    //   return FV;
+    // });
+
+    const FV = calculateContinuouslyCompounding() + calculateAnnuity();
+
+    // console.log('annuity', calculateAnnuity());
+
+    // console.log('Total', FV);
+
+    setAccruedAmount((prevState) => {
+      return FV;
+    });
+
+    return FV;
+  };
+
   // https://www.investopedia.com/terms/f/future-value-annuity.asp
   // better formula explanation
   // https://www.calculatorsoup.com/calculators/financial/future-value-annuity-calculator.php
@@ -137,7 +160,12 @@ const Calculator = (props) => {
     console.log('inputs.depositFrequency', inputs.depositFrequency);
     console.log('inputs.time', inputs.time);
 
-    if (inputs.depositFrequency === inputs.compoundingPeriods) {
+    if (inputs.interest === 0) {
+      console.log('no interest');
+      const FV = inputs.regularDeposit * inputs.depositFrequency * inputs.time;
+
+      return FV;
+    } else if (inputs.depositFrequency === inputs.compoundingPeriods) {
       const FV =
         inputs.regularDeposit *
         (((1 + inputs.interest / inputs.compoundingPeriods) **
@@ -146,11 +174,13 @@ const Calculator = (props) => {
           (inputs.interest / inputs.compoundingPeriods)) *
         (1 + (inputs.interest / inputs.compoundingPeriods) * inputs.annuityDue);
 
+      console.log('Annuity FV', FV);
+
       return FV;
-    } else if (inputs.compoundingPeriods === '0') {
+    } else if (inputs.compoundingPeriods === 0) {
       // https://www.calculatorsoup.com/calculators/financial/future-value-calculator.php
       // effective rate becomes e^r -1
-      console.log(`continueous`);
+      console.log(`continuous`);
 
       // interest rate must be in terms of deposit frequency
 
@@ -169,6 +199,8 @@ const Calculator = (props) => {
       //   (inputs.regularDeposit / (Math.E ** effectiveRate - 1)) *
       //   (Math.E ** (effectiveRate * inputs.time) - 1) *
       //   (1 + (Math.E ** effectiveRate - 1) * inputs.annuityDue);
+
+      console.log('Annuity FV', FV);
 
       return FV;
     } else {
@@ -190,7 +222,7 @@ const Calculator = (props) => {
       //     (equivalentInterestRate / inputs.compoundingPeriods) *
       //       inputs.annuityDue);
 
-      const FV =
+      let FV =
         inputs.regularDeposit *
         (((1 + equivalentInterestRate / inputs.depositFrequency) **
           (inputs.depositFrequency * inputs.time) -
@@ -199,6 +231,12 @@ const Calculator = (props) => {
         (1 +
           (equivalentInterestRate / inputs.depositFrequency) *
             inputs.annuityDue);
+
+      console.log('Annuity FV', FV);
+
+      if (isNaN(FV)) {
+        FV = 0;
+      }
 
       return FV;
     }
@@ -226,7 +264,18 @@ const Calculator = (props) => {
     const calculateChartData = () => {
       const data = [];
       let curTotal;
+      let curDeposits = 0;
       let prevTotal = inputs.principal;
+
+      /*
+        principal: 0,
+        interest: 0,
+        compoundingPeriods: 1,
+        time: 0,
+        regularDeposit: 0,
+        depositFrequency: 12,
+        annuityDue: 0,
+      */
 
       for (let i = 1; i <= inputs.time; i++) {
         const obj = {
@@ -234,20 +283,93 @@ const Calculator = (props) => {
           principal: inputs.principal,
         };
 
-        if (inputs.compoundingPeriods === '0') {
-          curTotal = prevTotal * Math.E ** (inputs.interest * 1);
+        // since we want the yearly values we set inputs.time = 1
+        if (inputs.interest === 0) {
+          curTotal =
+            prevTotal + inputs.regularDeposit * inputs.depositFrequency;
+
+          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
 
           prevTotal = curTotal;
-        } else {
-          curTotal =
+        } else if (inputs.depositFrequency === inputs.compoundingPeriods) {
+          const principalFV =
             prevTotal *
             (1 + inputs.interest / inputs.compoundingPeriods) **
               (inputs.compoundingPeriods * 1);
 
+          const annuityFV =
+            inputs.regularDeposit *
+            (((1 + inputs.interest / inputs.compoundingPeriods) **
+              (inputs.compoundingPeriods * 1) -
+              1) /
+              (inputs.interest / inputs.compoundingPeriods)) *
+            (1 +
+              (inputs.interest / inputs.compoundingPeriods) *
+                inputs.annuityDue);
+
+          curTotal = principalFV + annuityFV;
+
+          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
+
+          prevTotal = curTotal;
+        } else if (inputs.compoundingPeriods === 0) {
+          console.log('--------------------------');
+          const principalFV = prevTotal * Math.E ** (inputs.interest * 1);
+          console.log('principalFV', principalFV);
+
+          const annuityFV =
+            (inputs.regularDeposit /
+              (Math.E ** (inputs.interest / inputs.depositFrequency) - 1)) *
+            (Math.E **
+              ((inputs.interest / inputs.depositFrequency) *
+                (1 * inputs.depositFrequency)) -
+              1) *
+            (1 +
+              (Math.E ** (inputs.interest / inputs.depositFrequency) - 1) *
+                inputs.annuityDue);
+
+          console.log('annuityFV', annuityFV);
+
+          curTotal = principalFV + annuityFV;
+
+          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
+
+          prevTotal = curTotal;
+        } else {
+          const principalFV =
+            prevTotal *
+            (1 + inputs.interest / inputs.compoundingPeriods) **
+              (inputs.compoundingPeriods * 1);
+
+          const equivalentInterestRate =
+            inputs.depositFrequency *
+            ((1 + inputs.interest / inputs.compoundingPeriods) **
+              (inputs.compoundingPeriods / inputs.depositFrequency) -
+              1);
+
+          let annuityFV =
+            inputs.regularDeposit *
+            (((1 + equivalentInterestRate / inputs.depositFrequency) **
+              (inputs.depositFrequency * 1) -
+              1) /
+              (equivalentInterestRate / inputs.depositFrequency)) *
+            (1 +
+              (equivalentInterestRate / inputs.depositFrequency) *
+                inputs.annuityDue);
+
+          curTotal = principalFV + annuityFV;
+
+          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
+
           prevTotal = curTotal;
         }
 
-        obj.interest = (curTotal - inputs.principal).toFixed(2);
+        ///////
+        console.log('curTotal', curTotal);
+        console.log('curDeposits', curDeposits);
+        console.log('inputs.principal', inputs.principal);
+        obj.interest = (curTotal - curDeposits - inputs.principal).toFixed(2);
+        obj.deposits = curDeposits.toFixed(2);
         obj.total = curTotal.toFixed(2);
 
         console.log('chart obj', obj);
