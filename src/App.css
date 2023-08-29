@@ -1,3 +1,24 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  margin-bottom: 3rem;
+}
+
+header {
+  margin: 2rem 0;
+  text-align: center;
+}
+
 div {
   max-width: 800px;
   margin: 0 auto;
