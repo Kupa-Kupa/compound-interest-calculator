@@ -50,6 +50,15 @@ const Charts = (props) => {
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="name" />
             <YAxis
+              tickFormatter={(value) => {
+                return new Intl.NumberFormat('en-US', {
+                  style: 'currency',
+                  currency: 'AUD',
+                  currencyDisplay: 'narrowSymbol',
+                  notation: 'compact',
+                  compactDisplay: 'short',
+                }).format(value);
+              }}
               label={{
                 value: 'Total $',
                 position: 'insideLeft',

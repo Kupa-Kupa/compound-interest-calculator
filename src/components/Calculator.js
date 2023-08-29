@@ -22,11 +22,18 @@ import './Calculator.css';
 
 const Calculator = (props) => {
   const [inputs, setInputs] = useState({
-    principal: 0,
-    interest: 0,
+    // principal: 0,
+    // interest: 0,
+    // compoundingPeriods: 1,
+    // time: 1,
+    // regularDeposit: 0,
+    // depositFrequency: 12,
+    // annuityDue: 0,
+    principal: 1000,
+    interest: 0.05,
     compoundingPeriods: 1,
-    time: 0,
-    regularDeposit: 0,
+    time: 5,
+    regularDeposit: 100,
     depositFrequency: 12,
     annuityDue: 0,
   });
@@ -42,7 +49,10 @@ const Calculator = (props) => {
       name === 'regularDeposit' ||
       name === 'interest'
     ) {
-      if (isNaN(value) || value < 0) {
+      if (value.match(/.*\..*\..*/)) {
+        e.target.value = value.slice(0, -1);
+        value = value.slice(0, -1);
+      } else if (isNaN(value) || value < 0) {
         e.target.value = 0;
         value = 0;
       }
@@ -52,9 +62,12 @@ const Calculator = (props) => {
     // this places a leading 0 which can't be backspaced away
     // which is kind of annoying
     if (name === 'time') {
-      if (isNaN(value) || value < 1 || value % 1 !== 0) {
-        e.target.value = parseInt(value) || 0;
-        value = parseInt(value) || 0;
+      if (!value) {
+        // e.target.value = 1;
+        value = 1;
+      } else if (isNaN(value) || value < 1 || value % 1 !== 0) {
+        e.target.value = parseInt(value) || 1;
+        value = parseInt(value) || 1;
       }
     }
 
@@ -450,7 +463,14 @@ const Calculator = (props) => {
     <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
       <div className="output-container">
-        <div>{accruedAmount.toLocaleString()}</div>
+        <div>
+          {accruedAmount.toLocaleString(undefined, {
+            style: 'currency',
+            currency: 'AUD',
+            currencyDisplay: 'narrowSymbol',
+            maximumFractionDigits: 2,
+          })}
+        </div>
         <button onClick={calculate}>Calculate</button>
       </div>
     </div>

@@ -12,6 +12,7 @@ const CalcInputs = (props) => {
           id="principal"
           inputMode="decimal"
           onChange={props.handleInputsChange}
+          placeholder="1000"
         />
       </div>
 
@@ -23,6 +24,7 @@ const CalcInputs = (props) => {
           id="regularDeposit"
           inputMode="decimal"
           onChange={props.handleInputsChange}
+          placeholder="100"
         />
       </div>
 
@@ -68,6 +70,7 @@ const CalcInputs = (props) => {
           id="time"
           inputMode="numeric"
           onChange={props.handleInputsChange}
+          placeholder="5"
         />
       </div>
 
@@ -79,6 +82,7 @@ const CalcInputs = (props) => {
           id="interest"
           inputMode="decimal"
           onChange={props.handleInputsChange}
+          placeholder="5"
         />
       </div>
 
