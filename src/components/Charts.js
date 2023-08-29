@@ -52,8 +52,9 @@ const Charts = (props) => {
             <YAxis
               label={{
                 value: 'Total $',
-                angle: -90,
                 position: 'insideLeft',
+                angle: -90,
+                dy: -30,
                 className: 'yaxis-label',
               }}
             />

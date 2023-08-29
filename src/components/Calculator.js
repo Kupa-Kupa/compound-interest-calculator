@@ -264,7 +264,7 @@ const Calculator = (props) => {
     }
   };
 
-  // this is not really neccessary can do it in a single annuity forumula
+  // this is not really necessary can do it in a single annuity formula
   // by adding * (1 + rT)
   // https://www.calculatorsoup.com/calculators/financial/future-value-annuity-calculator.php
   /*
