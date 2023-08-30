@@ -8,6 +8,7 @@ import {
   calculateDepositContinuouslyCompounding,
   calculatePeriodicallyCompounding,
 } from '../utils/formulas';
+import { calculateChartData } from '../utils/calculateChartData';
 
 const Calculator = (props) => {
   const { setChartData } = props;
@@ -93,135 +94,43 @@ const Calculator = (props) => {
 
   // update chart data when calculate button clicked
   useEffect(() => {
-    const calculateChartData = () => {
-      console.log(`------------- Chart Data -------------`);
+    const calculateButton = document.querySelector('button');
 
-      const data = [];
-      let curTotal;
-      let curDeposits = 0;
-      let prevTotal = inputs.principal;
-
-      for (let i = 1; i <= inputs.time; i++) {
-        console.log(`------------- Year ${i} -------------`);
-
-        const obj = {
-          name: `Year ${i}`,
-          principal: inputs.principal,
-        };
-
-        // since we want the yearly values we set inputs.time = 1
-        if (inputs.interest === 0) {
-          curTotal =
-            prevTotal + inputs.regularDeposit * inputs.depositFrequency;
-
-          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
-
-          prevTotal = curTotal;
-        } else if (inputs.depositFrequency === inputs.compoundingPeriods) {
-          const principalFV =
-            prevTotal *
-            (1 + inputs.interest / inputs.compoundingPeriods) **
-              (inputs.compoundingPeriods * 1);
-
-          console.log('principalFV', principalFV);
-
-          const annuityFV =
-            inputs.regularDeposit *
-            (((1 + inputs.interest / inputs.compoundingPeriods) **
-              (inputs.compoundingPeriods * 1) -
-              1) /
-              (inputs.interest / inputs.compoundingPeriods)) *
-            (1 +
-              (inputs.interest / inputs.compoundingPeriods) *
-                inputs.annuityDue);
-
-          console.log('annuityFV', annuityFV);
-
-          curTotal = principalFV + annuityFV;
-
-          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
-
-          prevTotal = curTotal;
-        } else if (inputs.compoundingPeriods === 0) {
-          const principalFV = prevTotal * Math.E ** (inputs.interest * 1);
-
-          console.log('principalFV', principalFV);
-
-          const annuityFV =
-            (inputs.regularDeposit /
-              (Math.E ** (inputs.interest / inputs.depositFrequency) - 1)) *
-            (Math.E **
-              ((inputs.interest / inputs.depositFrequency) *
-                (1 * inputs.depositFrequency)) -
-              1) *
-            (1 +
-              (Math.E ** (inputs.interest / inputs.depositFrequency) - 1) *
-                inputs.annuityDue);
-
-          console.log('annuityFV', annuityFV);
-
-          curTotal = principalFV + annuityFV;
-
-          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
-
-          prevTotal = curTotal;
-        } else {
-          const principalFV =
-            prevTotal *
-            (1 + inputs.interest / inputs.compoundingPeriods) **
-              (inputs.compoundingPeriods * 1);
-
-          console.log('principalFV', principalFV);
-
-          const equivalentInterestRate =
-            inputs.depositFrequency *
-            ((1 + inputs.interest / inputs.compoundingPeriods) **
-              (inputs.compoundingPeriods / inputs.depositFrequency) -
-              1);
-
-          let annuityFV =
-            inputs.regularDeposit *
-            (((1 + equivalentInterestRate / inputs.depositFrequency) **
-              (inputs.depositFrequency * 1) -
-              1) /
-              (equivalentInterestRate / inputs.depositFrequency)) *
-            (1 +
-              (equivalentInterestRate / inputs.depositFrequency) *
-                inputs.annuityDue);
-
-          console.log('annuityFV', annuityFV);
-
-          curTotal = principalFV + annuityFV;
-
-          curDeposits += inputs.regularDeposit * inputs.depositFrequency;
-
-          prevTotal = curTotal;
-        }
-
-        console.log('curTotal', curTotal);
-        console.log('inputs.principal', inputs.principal);
-        console.log('curDeposits', curDeposits);
-
-        obj.interest = curTotal - curDeposits - inputs.principal;
-        obj.deposits = curDeposits;
-        obj.total = curTotal;
-
-        console.log('chart data', obj);
-
-        data.push(obj);
-      }
-
-      setChartData(data);
-      console.log(`------------- End Chart Data -------------`);
+    const renderChartData = () => {
+      calculateChartData(inputs, setChartData);
     };
 
-    const calculateButton = document.querySelector('button');
-    calculateButton.addEventListener('click', calculateChartData);
+    calculateButton.addEventListener('click', renderChartData);
 
     return () => {
-      calculateButton.removeEventListener('click', calculateChartData);
+      calculateButton.removeEventListener('click', renderChartData);
     };
   });
+
+  /*
+    calculateButton.removeEventListener('click', () => {
+      calculateChartData(inputs, setChartData);
+    });
+
+    I was failing to remove the event listener above.
+
+    This is because the removeEventListener method requires you to pass 
+    the exact same function reference that you used when adding the event 
+    listener. 
+
+    I was passing an anonymous arrow function when adding 
+    the event listener, and then trying to remove a different 
+    anonymous arrow function. Since these are different function 
+    references, the removeEventListener wasn't working.
+
+    I had to define the event listener function separately as:
+
+    const renderChartData = () => {
+      calculateChartData(inputs, setChartData);
+    };
+
+    Then I could remove it since the function reference was the same.
+  */
 
   // return calculator component
   return (

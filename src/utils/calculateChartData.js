@@ -3,7 +3,8 @@
   causes a massive slowdown in the rendering of the charts
 */
 
-function calculateChartData(inputs) {
+// pass set function as a parameter so I can call it at the end
+function calculateChartData(inputs, setChartData) {
   console.log(`------------- Chart Data -------------`);
 
   const data = [];
@@ -118,9 +119,12 @@ function calculateChartData(inputs) {
     data.push(obj);
   }
 
+  setChartData(data);
   console.log(`------------- End Chart Data -------------`);
 
-  return data;
+  // console.log(`------------- End Chart Data -------------`);
+
+  // return data;
 }
 
 export { calculateChartData };
