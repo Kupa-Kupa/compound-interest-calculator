@@ -6,13 +6,13 @@ import { dummyData } from './data/dummyData';
 import Header from './components/Header';
 
 function App() {
-  const [data, setData] = useState(dummyData);
+  const [chartData, setChartData] = useState(dummyData);
 
   return (
     <main>
       <Header />
-      <Charts data={data} />
-      <Calculator setData={setData} />
+      <Charts chartData={chartData} />
+      <Calculator setChartData={setChartData} />
     </main>
   );
 }

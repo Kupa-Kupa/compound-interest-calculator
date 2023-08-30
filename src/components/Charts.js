@@ -1,5 +1,3 @@
-// https://redixhumayun.github.io/visualization/2019/06/08/a-visual-reference-for-d3.html
-
 import React from 'react';
 import { formatNumber } from '../utils/utils';
 import './Charts.css';
@@ -7,10 +5,8 @@ import './Charts.css';
 import {
   BarChart,
   Bar,
-  // Cell,
   XAxis,
   YAxis,
-  // Label,
   CartesianGrid,
   Tooltip,
   Legend,
@@ -18,6 +14,8 @@ import {
 } from 'recharts';
 
 const Charts = (props) => {
+  const { chartData } = props;
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
@@ -49,7 +47,7 @@ const Charts = (props) => {
           <BarChart
             width={500}
             height={300}
-            data={props.data}
+            data={chartData}
             margin={{
               top: 20,
               right: 30,
@@ -91,3 +89,9 @@ const Charts = (props) => {
 };
 
 export default Charts;
+
+/*
+I've used recharts for graphing, but if I wanted to create custom charts
+I'd need to use something like D3
+https://redixhumayun.github.io/visualization/2019/06/08/a-visual-reference-for-d3.html
+*/
