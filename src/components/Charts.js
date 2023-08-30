@@ -1,14 +1,16 @@
 // https://redixhumayun.github.io/visualization/2019/06/08/a-visual-reference-for-d3.html
 
-import React, { useState } from 'react';
+import React from 'react';
+import { formatNumber } from '../utils/utils';
 import './Charts.css';
+
 import {
   BarChart,
   Bar,
-  Cell,
+  // Cell,
   XAxis,
   YAxis,
-  Label,
+  // Label,
   CartesianGrid,
   Tooltip,
   Legend,
@@ -21,10 +23,18 @@ const Charts = (props) => {
       return (
         <div className="custom-tooltip">
           <p className="label">{`${label}`}</p>
-          <p className="label">{`Principal: ${payload[0].payload.principal}`}</p>
-          <p className="label">{`Deposits: ${payload[0].payload.deposits}`}</p>
-          <p className="label">{`Interest: ${payload[0].payload.interest}`}</p>
-          <p className="label">{`Total: ${payload[0].payload.total}`}</p>
+          <p className="label">
+            {`Principal: ${formatNumber(payload[0].payload.principal)}`}
+          </p>
+          <p className="label">
+            {`Deposits: ${formatNumber(payload[0].payload.deposits)}`}
+          </p>
+          <p className="label">
+            {`Interest: ${formatNumber(payload[0].payload.interest)}`}
+          </p>
+          <p className="label">
+            {`Total: ${formatNumber(payload[0].payload.total)}`}
+          </p>
         </div>
       );
     }
@@ -63,8 +73,9 @@ const Charts = (props) => {
                 value: 'Total $',
                 position: 'insideLeft',
                 angle: -90,
-                dy: -30,
-                className: 'yaxis-label',
+                dy: -20,
+                dx: -10,
+                className: 'y-axis-label',
               }}
             />
             <Tooltip content={<CustomTooltip />} />

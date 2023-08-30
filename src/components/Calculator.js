@@ -19,6 +19,7 @@
 import React, { useState, useEffect } from 'react';
 import CalcInputs from './CalcInputs';
 import './Calculator.css';
+import { formatNumber } from '../utils/utils';
 
 const Calculator = (props) => {
   const [inputs, setInputs] = useState({
@@ -49,7 +50,10 @@ const Calculator = (props) => {
       name === 'regularDeposit' ||
       name === 'interest'
     ) {
-      if (value.match(/.*\..*\..*/)) {
+      if (!value) {
+        value = 0;
+        e.target.placeholder = 0;
+      } else if (value.match(/.*\..*\..*/)) {
         e.target.value = value.slice(0, -1);
         value = value.slice(0, -1);
       } else if (isNaN(value) || value < 0) {
@@ -65,6 +69,7 @@ const Calculator = (props) => {
       if (!value) {
         // e.target.value = 1;
         value = 1;
+        e.target.placeholder = 1;
       } else if (isNaN(value) || value < 1 || value % 1 !== 0) {
         e.target.value = parseInt(value) || 1;
         value = parseInt(value) || 1;
@@ -463,14 +468,7 @@ const Calculator = (props) => {
     <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
       <div className="output-container">
-        <div>
-          {accruedAmount.toLocaleString(undefined, {
-            style: 'currency',
-            currency: 'AUD',
-            currencyDisplay: 'narrowSymbol',
-            maximumFractionDigits: 2,
-          })}
-        </div>
+        <div>{formatNumber(accruedAmount)}</div>
         <button onClick={calculate}>Calculate</button>
       </div>
     </div>
