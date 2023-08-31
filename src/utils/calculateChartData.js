@@ -1,8 +1,3 @@
-/*
-  using this exported function in the Calculator component useEffect hook
-  causes a massive slowdown in the rendering of the charts
-*/
-
 // pass set function as a parameter so I can call it at the end
 function calculateChartData(inputs, setChartData) {
   console.log(`------------- Chart Data -------------`);
@@ -121,10 +116,6 @@ function calculateChartData(inputs, setChartData) {
 
   setChartData(data);
   console.log(`------------- End Chart Data -------------`);
-
-  // console.log(`------------- End Chart Data -------------`);
-
-  // return data;
 }
 
 export { calculateChartData };

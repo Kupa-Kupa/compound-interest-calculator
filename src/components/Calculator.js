@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+/*---------- Import Components ----------*/
 import CalcInputs from './CalcInputs';
-import './Calculator.css';
+/*---------- Import Functions ----------*/
 import { formatNumber } from '../utils/utils';
 import {
   calculateContinuouslyCompounding,
@@ -9,9 +10,13 @@ import {
   calculatePeriodicallyCompounding,
 } from '../utils/formulas';
 import { calculateChartData } from '../utils/calculateChartData';
+/*---------- Import CSS ----------*/
+import './Calculator.css';
 
 const Calculator = (props) => {
   const { setChartData } = props;
+
+  const [accruedAmount, setAccruedAmount] = useState(0);
 
   const [inputs, setInputs] = useState({
     principal: 1000,
@@ -23,12 +28,9 @@ const Calculator = (props) => {
     annuityDue: 0,
   });
 
-  const [accruedAmount, setAccruedAmount] = useState(0);
-
   const handleInputs = (e) => {
     let { name, value } = e.target;
 
-    // validate inputs
     if (
       name === 'principal' ||
       name === 'regularDeposit' ||
@@ -73,8 +75,7 @@ const Calculator = (props) => {
     });
   };
 
-  // Calculate FV
-  const calculate = () => {
+  const calculateFV = () => {
     let FV = 0;
 
     if (inputs.regularDeposit !== 0 && inputs.compoundingPeriods === 0) {
@@ -87,58 +88,35 @@ const Calculator = (props) => {
       FV = calculatePeriodicallyCompounding(inputs);
     }
 
-    setAccruedAmount((prevState) => {
-      return FV;
-    });
+    // set accrued amount to display on page
+    setAccruedAmount(FV);
   };
 
-  // update chart data when calculate button clicked
+  const calculateButtonRef = useRef(null);
+
+  const renderChartData = useCallback(() => {
+    calculateChartData(inputs, setChartData);
+  }, [inputs, setChartData]);
+
   useEffect(() => {
-    const calculateButton = document.querySelector('button');
+    // add event listener to calculate button
+    calculateButtonRef.current?.addEventListener('click', renderChartData);
 
-    const renderChartData = () => {
-      calculateChartData(inputs, setChartData);
-    };
-
-    calculateButton.addEventListener('click', renderChartData);
+    const currentButtonRef = calculateButtonRef.current;
 
     return () => {
-      calculateButton.removeEventListener('click', renderChartData);
+      currentButtonRef?.removeEventListener('click', renderChartData);
     };
-  });
+  }, [renderChartData]);
 
-  /*
-    calculateButton.removeEventListener('click', () => {
-      calculateChartData(inputs, setChartData);
-    });
-
-    I was failing to remove the event listener above.
-
-    This is because the removeEventListener method requires you to pass 
-    the exact same function reference that you used when adding the event 
-    listener. 
-
-    I was passing an anonymous arrow function when adding 
-    the event listener, and then trying to remove a different 
-    anonymous arrow function. Since these are different function 
-    references, the removeEventListener wasn't working.
-
-    I had to define the event listener function separately as:
-
-    const renderChartData = () => {
-      calculateChartData(inputs, setChartData);
-    };
-
-    Then I could remove it since the function reference was the same.
-  */
-
-  // return calculator component
   return (
     <div className="calculator-container">
       <CalcInputs handleInputsChange={handleInputs} />
       <div className="output-container">
         <div>{formatNumber(accruedAmount)}</div>
-        <button onClick={calculate}>Calculate</button>
+        <button ref={calculateButtonRef} onClick={calculateFV}>
+          Calculate
+        </button>
       </div>
     </div>
   );
